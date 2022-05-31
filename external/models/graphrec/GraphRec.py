@@ -69,10 +69,21 @@ class GraphRec(RecMixin, BaseRecommenderModel):
         self._device = torch.device("cuda" if self._use_cuda else "cpu")
 
         # TODO what is still missing is to make a different implementation based on if there is or there isn't a validation set
-        self._history_u_lists, self._history_ur_lists, self._history_v_lists, self._history_vr_lists, \
-        self._train_u, self._train_v, self._train_r, self._val_u, self._val_v, self._val_r, \
-        self._test_u, self._test_v, self._test_r, self._social_adj_lists, self._ratings_list = \
-            self.preprocess_data(data.train_dict, data.val_dict, data.test_dict, params.social_connections_filepath)
+
+
+        if hasattr(data, "val_dict"):
+            self._history_u_lists, self._history_ur_lists, self._history_v_lists, self._history_vr_lists, \
+            self._train_u, self._train_v, self._train_r, self._val_u, self._val_v, self._val_r, \
+            self._test_u, self._test_v, self._test_r, self._social_adj_lists, self._ratings_list = \
+                self.preprocess_data_validation(data.train_dict, data.val_dict, data.test_dict, params.social_connections_filepath)
+            self._num_users = max(set(self._train_u + self._val_u + self._test_u)) + 1
+            self._num_items = max(set(self._train_v + self._val_v + self._test_v)) + 1
+        else:
+            self._history_u_lists, self._history_ur_lists, self._history_v_lists, self._history_vr_lists, \
+            self._train_u, self._train_v, self._train_r, self._test_u, self._test_v, self._test_r, self._social_adj_lists, self._ratings_list = \
+                self.preprocess_data_test(data.train_dict, data.test_dict, params.social_connections_filepath)
+            self._num_users = max(set(self._train_u + self._test_u)) + 1
+            self._num_items = max(set(self._train_v + self._test_v)) + 1
 
 
         self._embed_dim = params.factors
@@ -94,8 +105,7 @@ class GraphRec(RecMixin, BaseRecommenderModel):
         # self._num_items = max(list(self._history_v_lists.keys()))+1
         # self._num_users = len(set(self._train_u + self._val_u + self._test_u))
         # self._num_items = len(set(self._train_v + self._val_v + self._test_v))
-        self._num_users = max(set(self._train_u + self._val_u + self._test_u))+1
-        self._num_items = max(set(self._train_v + self._val_v + self._test_v))+1
+
 
         #self._unique_users = set(self._train_u + self._val_u + self._test_u)
 
@@ -214,7 +224,7 @@ class GraphRec(RecMixin, BaseRecommenderModel):
                         self.logger.warning("Saving weights FAILED. No model to save.")
 
 
-    def preprocess_data(self, train_dict, val_dict, test_dict, social_connections_filepath):
+    def preprocess_data_validation(self, train_dict, val_dict, test_dict, social_connections_filepath):
         history_u_lists = self.create_history_u_lists(train_dict)
         history_ur_lists = self.create_history_ur_lists(train_dict)
         history_v_lists = self.create_history_v_lists(train_dict)
@@ -229,6 +239,18 @@ class GraphRec(RecMixin, BaseRecommenderModel):
         train_u, train_v, train_r, val_u, val_v, val_r, test_u, test_v, test_r, \
         social_adj_lists, ratings_list
 
+    def preprocess_data_test(self, train_dict, test_dict, social_connections_filepath):
+        history_u_lists = self.create_history_u_lists(train_dict)
+        history_ur_lists = self.create_history_ur_lists(train_dict)
+        history_v_lists = self.create_history_v_lists(train_dict)
+        history_vr_lists = self.create_history_vr_lists(train_dict)
+        train_u, train_v, train_r = self.create_uvr(train_dict)
+        test_u, test_v, test_r  = self.create_uvr(test_dict)
+        social_adj_lists = self.create_social_adj_lists(social_connections_filepath)
+        ratings_list = self.create_ratings_list(train_r + test_r)
+
+        return history_u_lists, history_ur_lists, history_v_lists, history_vr_lists, \
+        train_u, train_v, train_r, test_u, test_v, test_r, social_adj_lists, ratings_list
 
     def create_history_u_lists(self, user_item_ratings_dict):
         history_u_lists = {}

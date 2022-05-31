@@ -12,9 +12,9 @@ experiment:
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2
-    validation_splitting:
-     strategy: random_subsampling
-     test_ratio: 0.2
+    #validation_splitting:
+    # strategy: random_subsampling
+    # test_ratio: 0.2
   top_k: 10
   evaluation:
     cutoffs: [10, 5]
