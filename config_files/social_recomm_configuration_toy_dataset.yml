@@ -18,7 +18,7 @@ experiment:
   top_k: 10
   evaluation:
     cutoffs: [10, 5]
-    simple_metrics: [nDCG, Precision, Recall, Gini, SEntropy, SRecall, UserCoverage, ItemCoverage]
+    simple_metrics: [nDCG, Precision, Recall, Gini, SEntropy, UserCoverage, ItemCoverage]
     paired_ttest: True
     wilcoxon_test: True
   gpu: 0
@@ -27,7 +27,7 @@ experiment:
     external.GraphRec:
       meta:
         verbose: True
-        save_recs: False
+        save_recs: True
         validation_metric: nDCG@10
       epochs: 10
       batch_size: 128
@@ -48,8 +48,6 @@ experiment:
       meta:
         verbose: True
         save_recs: True
-        validation_metric: nDCG@10
-      neighbors: [40, 60]
-      similarity: [cosine, euclidean]
+      neighbors: 60
+      similarity: cosine
       implementation: standard
-      validation_metric: nDCG@10
