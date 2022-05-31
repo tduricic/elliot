@@ -24,6 +24,7 @@ from .kgflex_umap import KGFlexUmap
 from .convmf import ConvMF
 from .hrdr import HRDR
 from .KaVAE import KaVAE
+from .graphrec.GraphRec import GraphRec
 
 
 import sys
@@ -59,3 +60,5 @@ for _backend in sys.modules["external"].backend:
         from .ultragcn import UltraGCN
         from .gfcf import GFCF
         from .lrgccf import LRGCCF
+        from .graphrec.GraphRec import GraphRec
+
