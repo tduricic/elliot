@@ -1,14 +1,14 @@
 experiment:
-  dataset: toy_dataset
+  dataset: epinions
   data_config:
     strategy: dataset
-    dataset_path: ../data/toy_dataset/processed/filtered_ratings.tsv
+    dataset_path: ../data/epinions/processed/filtered_ratings.tsv
     side_information:
     #  prefiltering:
     #    strategy: user_average # Not applied in the paper experiments
   splitting:
     save_on_disk: True
-    save_folder: ../data/toy_dataset/splitting/
+    save_folder: ../data/epinions/splitting/
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2
@@ -33,21 +33,21 @@ experiment:
       batch_size: 128
       lr: 0.001
       factors: 64
-      social_connections_filepath: ./data/toy_dataset/processed/filtered_social_connections.tsv
+      social_connections_filepath: ./data/epinions/processed/filtered_social_connections.tsv
       seed: 42
-    Random:
-      meta:
-        verbose: True
-        save_recs: False
-      seed: 42
-    external.MostPop:
-      meta:
-        verbose: True
-        save_recs: True
-    ItemKNN:
-      meta:
-        verbose: True
-        save_recs: True
-      neighbors: 60
-      similarity: cosine
-      implementation: standard
+#    Random:
+#      meta:
+#        verbose: True
+#        save_recs: False
+#      seed: 42
+#    external.MostPop:
+#      meta:
+#        verbose: True
+#        save_recs: True
+#    ItemKNN:
+#      meta:
+#        verbose: True
+#        save_recs: True
+#      neighbors: 60
+#      similarity: cosine
+#      implementation: standard

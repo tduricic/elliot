@@ -16,6 +16,7 @@ import torch.utils.data
 import torch
 import random
 import os
+from tqdm import tqdm
 
 np.random.seed(0)
 
@@ -53,7 +54,7 @@ class GraphRec(RecMixin, BaseRecommenderModel):
             factors: 64
         """
         self._params_list = [
-            ("_epochs", "epochs", "epochs", 10, int, None),
+            ("_epochs", "epochs", "epochs", 20, int, None),
             ("_batch_size", "batch_size", "batch_size", 128, int, None),
             ("_test_batch_size", "test_batch_size", "test_batch_size", 1000, int, None),
             ("_learning_rate", "lr", "lr", 0.001, None, None),
@@ -69,8 +70,6 @@ class GraphRec(RecMixin, BaseRecommenderModel):
         self._device = torch.device("cuda" if self._use_cuda else "cpu")
 
         # TODO what is still missing is to make a different implementation based on if there is or there isn't a validation set
-
-
         if hasattr(data, "val_dict"):
             self._history_u_lists, self._history_ur_lists, self._history_v_lists, self._history_vr_lists, \
             self._train_u, self._train_v, self._train_r, self._val_u, self._val_v, self._val_r, \
@@ -154,6 +153,8 @@ class GraphRec(RecMixin, BaseRecommenderModel):
         predictions_top_k_val = {}
         self._model.eval()
         with torch.no_grad():
+            # Small hack, only test items are the candidate items
+            # v = torch.tensor(list(set(self._test_u))).to(self._device)
             v = torch.tensor(self._data.items).to(self._device)
             for index, offset in enumerate(range(0, len(self._data.users), self._batch_size)):
                 offset_stop = min(offset + self._batch_size, len(self._data.users))
@@ -232,7 +233,7 @@ class GraphRec(RecMixin, BaseRecommenderModel):
         train_u, train_v, train_r = self.create_uvr(train_dict)
         val_u, val_v, val_r = self.create_uvr(val_dict)
         test_u, test_v, test_r  = self.create_uvr(test_dict)
-        social_adj_lists = self.create_social_adj_lists(social_connections_filepath)
+        social_adj_lists = self.create_social_adj_lists(social_connections_filepath, history_u_lists)
         ratings_list = self.create_ratings_list(train_r + val_r + test_r)
 
         return history_u_lists, history_ur_lists, history_v_lists, history_vr_lists, \

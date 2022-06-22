@@ -24,8 +24,14 @@ class UV_Encoder(nn.Module, ABC):
         tmp_history_uv = []
         tmp_history_r = []
         for node in nodes:
-            tmp_history_uv.append(self.history_uv_lists[int(node)])
-            tmp_history_r.append(self.history_r_lists[int(node)])
+            if int(node) not in self.history_uv_lists:
+                tmp_history_uv.append([])
+            else:
+                tmp_history_uv.append(self.history_uv_lists[int(node)])
+            if int(node) not in self.history_r_lists:
+                tmp_history_r.append([])
+            else:
+                tmp_history_r.append(self.history_r_lists[int(node)])
 
         neigh_feats = self.aggregator.forward(nodes, tmp_history_uv, tmp_history_r)  # user-item network
 
